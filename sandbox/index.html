@@ -4,7 +4,7 @@
 <html>
 <head>
     <title>JSONPness Sandbox</title>
-    <script src="src/JSONPness.js" type="text/javascript"></script>
+    <script src="/js/JSONPness.js" type="text/javascript"></script>
     <script type="text/javascript">
 window.onload = sendRequest;
 
@@ -12,7 +12,7 @@ window.onload = sendRequest;
 function sendRequest() {
     // This is the default backend url for testing, note inclusion of '?'
     // character
-    JSONPness.setBackendUrl("http://localhost/JSONPness/bin/json_pness.php?");
+    JSONPness.setBackendUrl("http://jsonpness.loc/php/bin/jsonp_ness.php?");
 
     // simple request for testing
     JSONPness.send({
@@ -23,6 +23,7 @@ function sendRequest() {
 
 // Show that we can get a response
 function alertText(data) {
+	document.write(data);
     if ( window.console && window.console.log ) {
         console.log(data);
     }

@@ -3,7 +3,7 @@
  * @author James Lafferty <james@nearlysensical.com>
  * @copyright 2009 (c), James Lafferty and Jeremy Osborne
  * @package JSONP_Ness
- * @since 0.1
+ * @since development
 */
 
 class JSONP_Ness {
@@ -19,7 +19,7 @@ class JSONP_Ness {
 	 * @author James Lafferty <james@nearlysensical.com>
 	 * @copyright 2009 (c), James Lafferty and Jeremy Osborne
 	 * @return JSONP_Ness object
-	 * @since 0.1
+	 * @since development
 	*/
 	
 	public function __construct() {
@@ -31,7 +31,7 @@ class JSONP_Ness {
 	/**
 	 * @author James Lafferty <james@nearlysensical.com>
 	 * @copyright 2009 (c), James Lafferty and Jeremy Osborne
-	 * @since 0.1
+	 * @since development
 	*/
 	
 	public function __destruct() {
@@ -46,7 +46,7 @@ class JSONP_Ness {
 	 * @param $callback
 	 * @param $request_id
 	 * @param $url
-	 * @since 0.1
+	 * @since development
 	*/
 	
 	public function dial_url( $callback = null, $request_id = null, $url = null ) {
@@ -81,7 +81,7 @@ class JSONP_Ness {
 	 * @author James Lafferty <james@nearlysensical.com>
 	 * @copyright 2009 (c), James Lafferty and Jeremy Osborne
 	 * @param $url
-	 * @since 0.1
+	 * @since development
 	*/
 	
 	public function kickback( $url = null ) {
@@ -106,7 +106,7 @@ class JSONP_Ness {
 	/**
 	 * @author James Lafferty <james@nearlysensical.com>
 	 * @copyright 2009 (c), James Lafferty and Jeremy Osborne
-	 * @since 0.1
+	 * @since development
 	*/
 		
 	private static function destroy_ch() {
@@ -118,7 +118,7 @@ class JSONP_Ness {
 	/**
 	 * @author James Lafferty <james@nearlysensical.com>
 	 * @copyright 2009 (c), James Lafferty and Jeremy Osborne
-	 * @since 0.1
+	 * @since development
 	*/
 	
 	private static function exec_ch( $callback, $request_id ) { 
@@ -133,7 +133,7 @@ class JSONP_Ness {
 	/**
 	 * @author James Lafferty <james@nearlysensical.com>
 	 * @copyright 2009 (c), James Lafferty and Jeremy Osborne
-	 * @since 0.1
+	 * @since development
 	*/
 	
 	private static function init_ch() {
@@ -148,7 +148,7 @@ class JSONP_Ness {
 	 * @copyright 2009 (c), James Lafferty and Jeremy Osborne
 	 * @param $key
 	 * @param $value
-	 * @since 0.1
+	 * @since development
 	*/
 	
 	private static function set_option( $key, $value ) {
