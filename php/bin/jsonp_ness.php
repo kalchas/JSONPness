@@ -2,6 +2,7 @@
 /**
  * 
  * @author James Lafferty
+ * @todo Add error handling for missing parameters.
  * @version development
  * @package JSONP_Ness
 */
@@ -13,29 +14,44 @@ set_include_path( get_include_path() . PATH_SEPARATOR . LIB_DIR . PATH_SEPARATOR
 spl_autoload_extensions('.class.php'); // Add '.class.php' to the list of class extensions that will be autoloaded.
 spl_autoload_register();
 
-$jsonp_ness = new JSONP_Ness(); // Create a JSONP_Ness
-
-// Set dial_url variables according to incoming GET request.
-if ( isset( $_GET ) && null != $_GET ) {
-
-	$callback = $_GET[ 'callback' ];
-	$request_id = $_GET['requestId'];
-	$url = $_GET['url'];
-
-} else {
-	
-	$callback = null;
-	$request_id = null;
-	$url = null;
-	
-}
-
-// Dial the url.
-$response = $jsonp_ness->dial_url( $callback, $request_id, $url );
-
 // Create header.
 header( 'Content-type: text/javascript' );
 
-// Pass back the response.
-echo $response;
+if ( isset( $_GET ) && null != $_GET && isset( $_GET['callback'] ) && isset( $_GET['requestId'] ) && isset( $_GET['url'] ) ) {
+
+	$jsonp_ness = new JSONP_Ness(); // Create a JSONP_Ness
+
+	// Set required dial_url parameters according to incoming GET request.
+	$callback = $_GET['callback'];
+	$request_id = $_GET['requestId'];
+	$url = $_GET['url'];
+	
+	// Set optional dial_url parameters to defaults.
+	$request_type = 'GET';
+	$request_params = array();
+	
+	// Check whether we've got an incoming requestType.
+	if ( isset( $_GET['requestType'] ) ) {
+		
+		$request_type = $_GET['requestType' ];
+		
+		// Check whether we've got any urlParams coming in.
+		if ( isset ( $_GET['urlParams'] ) ) {
+			
+			$request_params = json_decode( $_GET['urlParams'], true ); // json_decode the urlParams as an associative array.
+		
+		}
+			
+	} 
+
+	// Dial the url.
+	$response = $jsonp_ness->dial_url( $callback, $request_id, $url, $request_type, $request_params );
+
+	// Pass back the response.
+	echo $response;
+
+} else {
+
+	
+}
 ?>

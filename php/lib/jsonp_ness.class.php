@@ -46,11 +46,18 @@ class JSONP_Ness {
 	 * @param $callback
 	 * @param $request_id
 	 * @param $url
+	 * @param $request_type
+	 * @param $request_params
 	 * @since development
+	 * @todo Add authentication.
 	*/
 	
-	public function dial_url( $callback = null, $request_id = null, $url = null ) {
+	public function dial_url( $callback = null, $request_id = null, $url = null, $request_type = 'GET', $request_params = null ) {
 	
+	/*
+		// This is temporarily commented out to be placed elsewhere. bin/jsonp_ness.php was edited to filter out bad requests earlier.
+		// Check that all necessary parameters are provided and record errors if they are not.
+		
 		if ( null == $callback ) $this->errors[] = new JSONP_Ness_Exception( '"callback" is a required field.' );
 		if ( null == $request_id ) $this->errors[] = new JSONP_Ness_Exception( '"requestId" is a required field' );
 		if ( null == $url ) $this->errors[] = new JSONP_Ness_Exception( '"url" is a required field' );
@@ -67,7 +74,18 @@ class JSONP_Ness {
 			
 			$jsonp_ness_response = new JSONP_Ness_Response( $request_id, null, json_encode( $error ) );
 			JSONP_Ness::$last_response = $jsonp_ness_response->wrap_me( $callback );
-			return JSONP_Ness::$last_response;
+			return JSONP_Ness::$last_response; // Return the error if anything is missing.
+			
+		}
+	*/
+		
+		// Check if we've got a POST request coming through. If so, we need to set the parameters for the POST.
+		
+		if ( 'POST' == $request_type ) {
+			
+			JSONP_Ness::set_option( CURLOPT_POST, 1 );
+			
+			if ( null != $request_params ) JSONP_Ness::set_option( CURLOPT_POSTFIELDS, $request_params ); // Set the post fields if they exist.
 			
 		}
 		
