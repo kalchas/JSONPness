@@ -28,7 +28,8 @@ if ( isset( $_GET ) && null != $_GET && isset( $_GET['callback'] ) && isset( $_G
 	
 	// Set optional dial_url parameters to defaults.
 	$request_type = 'GET';
-	$request_params = array();
+	$request_params = null;
+	$headers = null;
 	
 	// Check whether we've got an incoming requestType.
 	if ( isset( $_GET['requestType'] ) ) {
@@ -43,9 +44,11 @@ if ( isset( $_GET ) && null != $_GET && isset( $_GET['callback'] ) && isset( $_G
 		}
 			
 	} 
+	
+	if ( isset( $_GET['requestHeaders'] ) ) $headers = $_GET['requestHeaders'];
 
 	// Dial the url.
-	$response = $jsonp_ness->dial_url( $callback, $request_id, $url, $request_type, $request_params );
+	$response = $jsonp_ness->dial_url( $callback, $request_id, $url, $request_type, $request_params, $headers );
 
 	// Pass back the response.
 	echo $response;

@@ -52,7 +52,7 @@ class JSONP_Ness {
 	 * @todo Add authentication.
 	*/
 	
-	public function dial_url( $callback = null, $request_id = null, $url = null, $request_type = 'GET', $request_params = null ) {
+	public function dial_url( $callback = null, $request_id = null, $url = null, $request_type = 'GET', $request_params = null, $headers = null ) {
 	
 	/*
 		// This is temporarily commented out to be placed elsewhere. bin/jsonp_ness.php was edited to filter out bad requests earlier.
@@ -88,6 +88,8 @@ class JSONP_Ness {
 			if ( null != $request_params ) JSONP_Ness::set_option( CURLOPT_POSTFIELDS, $request_params ); // Set the post fields if they exist.
 			
 		}
+		
+		if ( null != $headers ) JSONP_Ness::set_option( CURLOPT_HTTPHEADERS, $headers);
 		
 		JSONP_Ness::set_option( CURLOPT_URL, $url );
 		JSONP_Ness::exec_ch( $callback, $request_id );
