@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC
+  "-//W3C//DTD HTML 4.01//EN"
+  "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Sample Unit Test Suite</title>
+<!-- load the test framework, which will be made available at package time. -->
+<script type="text/javascript" src="lib/jsunittest.js"></script>
+
+<!-- load the code we wish to test -->
+<script type="text/javascript" src="lib/sample_project.coverage.js"></script>
+
+<!-- Keep the unit tests simple -->
+<script type="text/javascript">
+
+// We are set-up as the following:
+// The unittest.js includes an initializeFramework function
+// Once initializeFramework has completed, it will call the
+// setupTests function.
+window.onload = initializeFramework;
+
+// This function will be executed as a callback from initalizeFramework
+// It will be passed a test object as argument one.
+// Name it whatever you want. I like ut, short and sweet.
+function setupTests(ut) {
+
+    // Logged name of our test suite
+    var suite = new ut.TestSuite("Sample suite");
+
+    // Keep things simple
+    var testCase = new ut.TestCase();
+    // Name our test case for easier identification
+    testCase.name = "Sample testcase"
+    // Each test needs to start with the string "test" in the
+    // name
+    testCase.testExists = function(){
+        // General method params = (what to test, "message on failure");
+        ut.assert(window.OhGodNotAnotherJavaScriptLib, "WTF!")
+    };
+
+    //  Tests get added
+    suite.add(testCase);
+
+    // Run our tests
+    ut.runTests(suite);
+}
+
+</script>
+</head>
+<body>
+    <h1>Sample Unit Test</h1>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    NOTE: Change the project name to your project otherwise you will mess up
+    the final output.
+
+    Don't indent the top level elements.
+  -->
+<project name="JSONPness"
+    default="usage"
+    basedir=".">
+
+<!-- Properties that need to be here. -->
+<property name="buildscriptsDir"
+    value="buildscripts"
+    description="Location of buildscripts and tools."/>
+
+<!-- Macros and targets defined externally. -->
+<import file="${buildscriptsDir}/properties.xml"/>
+<import file="${buildscriptsDir}/macros.xml"/>
+<import file="${buildscriptsDir}/targets.xml"/>
+
+<!--
+    This file is assumed for use with debug only builds. If you don't
+    want to include the file logger, just remove the referenced file.
+  -->
+<filelist id="loggerFiles" dir="${libDir}/logger">
+    <file name="log.js"/>
+</filelist>
+
+<!-- Source Filelist: List in the order they should be concatenated. -->
+<filelist id="srcFiles" dir="${srcDir}">
+    <file name="JSONPness.js"/>
+</filelist>
+
+</project>

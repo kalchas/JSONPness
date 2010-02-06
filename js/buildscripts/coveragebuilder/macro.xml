@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="coveragebuilder">
+    <description>
+    Take a JavaScript file and instrument it for test coverage analysis.
+    </description>
+
+    <macrodef name="coveragebuild">
+        <attribute name="infile"
+            description="Required input file name."/>
+        <attribute name="outfile"
+            description="Required output file."/>
+
+        <sequential>
+            <echo level="info">Generating coverage library.</echo>
+            <echo level="info">Input file: @{infile}</echo>
+            <echo level="info">Output file: @{outfile}</echo>
+            <java jar="${libDir}/yuitest-coverage/yuitest-coverage.jar"
+                  fork="true">
+                <arg line="-o @{outfile}" />
+                <arg file="@{infile}" />
+            </java>
+        </sequential>
+    </macrodef>
+
+</project>

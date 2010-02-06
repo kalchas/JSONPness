@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="JavaScriptProperties">
+
+<property name="libDir"
+    value="lib"
+    description="Location of third party, or not-project-specific common code."/>
+
+<property name="srcDir"
+    value="src"
+    description="Base location of project specific JavaScript files."/>
+
+<property name="unitTestDir"
+    value="test"
+    description="Base location of project specific unit test files."/>
+
+<property name="outDir"
+    value="build"
+    description="The output directory where all built files will go."/>
+
+<property name="outTmpDir"
+    value="${outDir}/tmpDir"
+    description="Output directory for (probably only) the raw library."/>
+
+<property name="outDocDir"
+    value="${outDir}/docs"
+    description="Output directory for auto-generated documentation."/>
+
+<property name="testResultsDir"
+    value="${outDir}/testresults"
+    description="Base directory where all test results will be stored."/>
+
+<property name="unitTestsPackageDir"
+    value="${outDir}/test"
+    description="Package directory for our unit tests."/>
+
+<property name="coverageResultsDir"
+    value="${testResultsDir}/coverageResults"
+    description="Output directory for raw coverage results."/>
+
+<property name="coverageReportsDir"
+    value="${testResultsDir}/coverageReports"
+    description="Output directory for coverage reports."/>
+
+<property name="rawLib"
+    value="${outTmpDir}/${ant.project.name}.raw.js"
+    description="Raw file, from which all other JavaScript libs will descend."/>
+
+<property name="debugLib"
+    value="${outDir}/${ant.project.name}.debug.js"
+    description="Debug lib. All comments, all log messages."/>
+
+<property name="develLib"
+    value="${outDir}/${ant.project.name}.js"
+    description="Devel and auto-doc lib. All comments, no log messages."/>
+
+<property name="coverageLib"
+    value="${outDir}/${ant.project.name}.coverage.js"
+    description="Code instrumented for code coverage reports from unit tests."/>
+
+<property name="minifiedLib"
+    value="${outDir}/${ant.project.name}.min.js"
+    description="Minified lib. No comments, no log messages, compressed."/>
+
+
+
+<property name="jsunitTestLib"
+    value="${libDir}/jsunittest/jsunittest.js"
+    description="JavaScript unit test framework."/>
+
+</project>

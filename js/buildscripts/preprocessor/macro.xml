@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Notes:
+
+    * The preprocess task does not rename the process file.
+    * An intermediate file is created during the process with the name
+      @{infile}.preprocessing. As these tasks should be run serially,
+      we assume we won't have any file write collisions or overwriting
+      problems.
+  -->
+<project name="preprocess">
+    <description>
+    A preprocess task that will preprocess one file at a time.
+    </description>
+
+    <taskdef name="preprocess"
+        classname="com.moxiecode.ant.tasks.PreProcessTask"
+        classpath="${libDir}/js-build-tools/js_build_tools.jar;" />
+
+    <macrodef name="preprocessFile"
+        description="Preprocess a single JavaScript file.">
+        <attribute name="infile"
+            description="Required: Input file to process."/>
+        <attribute name="defines"
+            description="Required: Comma delimited list of blocks to process."/>
+
+        <sequential>
+            <echo level="info">Preprocessing @{infile}</echo>
+            <echo level="info">with the following defines: @{defines}</echo>
+            <preprocess infile="@{infile}" outfile="@{infile}.preprocessing" defines="@{defines}"/>
+            <move file="@{infile}.preprocessing" tofile="@{infile}" />
+        </sequential>
+    </macrodef>
+
+</project>

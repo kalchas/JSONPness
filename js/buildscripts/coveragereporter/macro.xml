@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="coveragereporter">
+    <description>
+    Analyze and output a test coverage report.
+    </description>
+
+    <macrodef name="coveragereport">
+        <attribute name="infile"
+            description="Required raw data file."/>
+        <attribute name="outdirectory"
+            description="Required output directory."/>
+
+        <sequential>
+            <echo level="info">Generating coverage reports.</echo>
+            <echo level="info">Input file: @{infile}</echo>
+            <echo level="info">Output directory: @{outdirectory}</echo>
+            <java jar="${libDir}/yuitest-coverage/yuitest-coverage-report.jar"
+                  fork="true">
+                <arg line="-o @{outdirectory}" />
+                <arg file="@{infile}" />
+            </java>
+        </sequential>
+    </macrodef>
+
+</project>

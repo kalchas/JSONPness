@@ -1,0 +1,56 @@
+<!DOCTYPE HTML 
+    PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>JSONPness Sandbox Twitter Test</title>
+    <script src="/js/src/JSONPness.js" type="text/javascript"></script>
+    <script type="text/javascript">
+JSONPness.setBackendUrl("http://jsonpness.loc/php/bin/jsonp_ness.php?");
+// Trigger the test
+function sendRequest() {
+    var user = document.getElementById("userName").value,
+        pass = document.getElementById("userPass").value,
+        update = document.getElementById("statusUpdate").value,
+        basicAuth;
+    
+    // Very insecure, be careful where you test this
+    basicAuth = JSONPness.createHTTPBasicAuth(user, pass);
+        
+        
+    // simple request for testing
+    JSONPness.send({
+        url: "http://twitter.com/statuses/update.json",
+        params: {
+            "status": update
+        },
+        headers: {
+            "Authorization": basicAuth
+        },
+        type: "POST",
+        callback: alertText
+    });
+}
+
+// Show that we can get a response
+function alertText(data) {
+    //document.write(data);
+    if ( window.console && window.console.log ) {
+        console.log(data);
+    }
+    else {
+        alert(data);
+    }
+}
+
+    </script>
+</head>
+<body>
+    <h1>JSONPness Sandbox</h1>
+    <p>Check your developer console (e.g. firebug) for the response.</p>
+    <label>Twitter user: <input type="text" name="userName" id="userName"></label><br>
+    <label>Twitter pass: <input type="password" name="userPass" id="userPass"></label><br>
+    <label>Status Update: <input type="text" name="statusUpdate" id="statusUpdate"></label><br>
+    <input type="button" value="make it so" onclick="sendRequest()">
+</body>
+</html>

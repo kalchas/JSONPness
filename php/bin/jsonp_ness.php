@@ -37,15 +37,19 @@ if ( isset( $_GET ) && null != $_GET && isset( $_GET['callback'] ) && isset( $_G
 		$request_type = $_GET['requestType' ];
 		
 		// Check whether we've got any urlParams coming in.
-		if ( isset ( $_GET['urlParams'] ) ) {
+		if ( isset ( $_GET['params'] ) ) {
 			
-			$request_params = json_decode( $_GET['urlParams'], true ); // json_decode the urlParams as an associative array.
+			$request_params = json_decode( $_GET['params'], true ); // json_decode the urlParams as an associative array.
 		
 		}
 			
 	} 
 	
-	if ( isset( $_GET['requestHeaders'] ) ) $headers = $_GET['requestHeaders'];
+	if ( isset( $_GET['headers'] ) ) {
+		
+		$headers = json_decode( $_GET['headers'], true );
+		
+	}
 
 	// Dial the url.
 	$response = $jsonp_ness->dial_url( $callback, $request_id, $url, $request_type, $request_params, $headers );

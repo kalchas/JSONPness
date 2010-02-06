@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The project name is referenced in this file, be careful changing it. -->
+<project name="jsdocementor">
+    <description>
+    JavaScript documentation ant task.
+    </description>
+
+    <property name="jsdocementor.basedir"
+        value="${libDir}/jsdoc-toolkit"/>
+
+    <macrodef name="jsdoc"
+        description="Auto-generate docummentation on a JavaScript file drop contents in the doc dir.">
+        <attribute name="infile"
+            description="Required: Input file to process."/>
+
+        <sequential>
+            <echo level="info">Auto generating documentation for @{infile}</echo>
+            <java jar="${jsdocementor.basedir}/jsrun.jar" fork="true">
+                <arg file="${jsdocementor.basedir}/app/run.js" />
+                <!--
+                    With this setting jsdoc-toolkit reads the js code and can
+                    have problems with some trickier/nastier JavaScript code
+                    patterns.
+                    All functions, including private, will be output.
+                    I assume we can respect each other
+                    and not get mad if private functions change between
+                    releases... right?
+                 -->
+                <arg value="--allfunctions" />
+                <arg value="--private" />
+                <!--
+                    A good alternate setting:
+                    -n or (dash)(dash)nocode
+                    Ignore all code, only document comments with @name tags.
+                 -->
+                <arg value="--verbose" />
+                <arg line="--template=${jsdocementor.basedir}/templates/jsdoc" />
+                <arg line="--directory=${outDocDir}" />
+                <arg file="@{infile}" />
+            </java>
+        </sequential>
+    </macrodef>
+
+</project>

@@ -89,7 +89,14 @@ class JSONP_Ness {
 			
 		}
 		
-		if ( null != $headers ) JSONP_Ness::set_option( CURLOPT_HTTPHEADERS, $headers);
+		if ( null != $headers ) {
+			
+			$prepped_headers = JSONP_Ness::concat_ass_array( $headers, ': ' );
+			$prepped_headers[] = 'Expect:';
+			
+			JSONP_Ness::set_option( CURLOPT_HTTPHEADER,  $prepped_headers );// Fix up headers and string it all together.
+			
+		}
 		
 		JSONP_Ness::set_option( CURLOPT_URL, $url );
 		JSONP_Ness::exec_ch( $callback, $request_id );
@@ -175,6 +182,26 @@ class JSONP_Ness {
 	
 		curl_setopt( JSONP_Ness::$ch, $key, $value );
 	
+	}
+	
+	/**
+	 * @author James Lafferty <james@nearlysensical.com>
+	 * @copyright 2009 (c), James Lafferty and Jeremy Osborne
+	 * @param $array
+	 * @since development
+	*/
+	
+	private static function concat_ass_array( $array = array(), $glue ) {
+		
+		$result = array();
+		foreach ( $array as $key => $value) {
+			
+			$result[] = $key . $glue . $value;
+			
+		}
+		
+		return $result;
+		
 	}
 
 }

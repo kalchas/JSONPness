@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="JavaScriptTargets">
+
+<!-- Targets -->
+<!--################################################################### Help -->
+<target name="usage">
+    <echo level="info">
+Welcome to this project's ant build script.
+
+Project you are viewing: ${ant.project.name}
+build script: ${ant.file}
+working in: ${basedir}
+Ant Home Detected at: ${ant.home}
+Ant Version Being Used: ${ant.version}
+Java Version detected: ${ant.java.version}
+    </echo>
+</target>
+
+<!--############################################################### Clean up -->
+<target name="clean">
+    <echo level="info">
+Deleting everything under the build directory.
+No error will be displayed if the the ${outDir} does not exist.
+    </echo>
+    <delete includeemptydirs="true" quiet="true" dir="${outDir}" />
+</target>
+
+<!--################################################################## Build -->
+<target name="build_raw"
+    description="Build the raw library, base of all other js libraries.">
+    <echo level="info">
+Building the raw library.
+
+This library is a concatenation of all files that will be delivered
+in this project.
+
+This is the root ancestor of all other builds.
+No preprocessing is done on this base library.
+
+Most likely, this library should never actually be used in a page because
+it has not been preprocessed.
+
+The Logger code is included here, and it is assumed the logger code is
+marked for removal when the preprocessor runs with anything other than
+debug settings.
+    </echo>
+    <concat append="false"
+        destfile="${rawLib}"
+        fixlastline="yes">
+        <filelist refid="loggerFiles"/>
+    </concat>
+    <concat append="true"
+        destfile="${rawLib}"
+        fixlastline="yes">
+        <filelist refid="srcFiles"/>
+    </concat>
+</target>
+
+<target name="build_debug"
+    depends="build_raw"
+    description="Build the debug library, good for testing.">
+    <echo level="info">
+Building the debug library.
+
+Besides the code, this library contains:
+* Logger code prefixed to build
+* Named functions (see sample code for example)
+* Log statements
+* Comments
+* Is prepocessed using the "debug" define
+
+The debug build is designed for developer driven debugging.
+    </echo>
+    <preprocess infile="${rawLib}" outfile="${debugLib}" defines="debug"/>
+</target>
+
+<target name="build_devel"
+    depends="build_raw"
+    description="Build the devel library.">
+    <echo level="info">
+Building the development library.
+
+Besides the code, this library contains:
+* Comments
+* Is prepocessed using the "devel" define
+
+This library is for developers who wish to work with prettier code, but don't
+want, or don't need, the debugging code.
+    </echo>
+    <preprocess infile="${rawLib}" outfile="${develLib}" defines="devel"/>
+    <removeLogFunctionCalls infile="${develLib}"/>
+    <removeStackTraceFunctionNames infile="${develLib}"/>
+</target>
+
+<target name="build_coverage"
+    depends="build_devel"
+    description="Build the coverage library.">
+    <echo level="info">
+Building the instrumented code coverage library.
+
+This library descends from the build_devel library,
+and additionally contains:
+* Instrumementation used to generate code coverage reports
+
+This library is designed to be used with the unit tests.
+    </echo>
+    <coveragebuild infile="${develLib}" outfile="${coverageLib}"/>
+</target>
+
+<target name="build_min"
+    depends="build_raw"
+    description="Build the minified library.">
+    <echo level="info">
+Building the minified library.
+
+Besides the code, this library is:
+* Minified (all unnecesary whitespace, newlines, and comments stripped).
+* Is prepocessed using the "release" define.
+
+This library is for production use, and for performance testing.
+    </echo>
+    <preprocess infile="${rawLib}" outfile="${minifiedLib}" defines="release"/>
+    <removeStackTraceFunctionNames infile="${minifiedLib}"/>
+    <removeLogFunctionCalls infile="${minifiedLib}"/>
+    <jscompress infile="${minifiedLib}" outfile="${minifiedLib}"/>
+</target>
+
+<target name="build_unittest_package"
+    depends="package_unittests, build_coverage"
+    description="Build the test package, including the coverage library.">
+    <echo level="info">Copying coverage library into test package.</echo>
+    <copy file="${coverageLib}" todir="${unitTestsPackageDir}/lib"/>
+</target>
+
+<target name="build"
+    depends="build_debug, build_devel, build_min, build_coverage, build_unittest_package"
+    description="Build all basic JavaScript libraries.">
+    <echo level="info">All JavaScript libraries built.</echo>
+</target>
+
+<target name="package_unittests"
+    description="Package up the unit tests in the out directory.">
+    <echo level="info">Packaging unit tests and libs.</echo>
+    <!-- this is hard coded. I should probably make it a property... -->
+    <copy file="${jsunitTestLib}" todir="${unitTestsPackageDir}/lib"/>
+    <copy todir="${unitTestsPackageDir}">
+        <fileset dir="${unitTestDir}"/>
+    </copy>
+</target>
+
+<target name="doc" depends="build_devel"
+    description="Auto-generate documentation from devel library.">
+    <echo level="info">Auto-generating documentation from devel library.</echo>
+    <jsdoc infile="${develLib}"/>
+</target>
+
+<target name="all" depends="build, doc"
+    description="Build everything.">
+    <echo level="info">Everything is built.</echo>
+</target>
+
+</project>

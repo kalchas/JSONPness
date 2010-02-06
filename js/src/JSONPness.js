@@ -95,7 +95,7 @@ var d = document,
  * @description The JSONPness global, static object.
  * @name JSONPness
  */
-window.JSONPness = {};
+w.JSONPness = {};
 
 //---------------------------------------------------- Private Objects
 
@@ -140,6 +140,39 @@ function jpGetNextRequestId() {
 }
 
 /**
+ * Build an encoded URL param group, if any, that will be set by the backend
+ * proxy before the proxied request is sent.
+ * @inner
+ * @param key {string} The name of the URL param key that the values will be
+ * passed to the JSONPness backend. The key should contain both the '=' and the
+ * appropriate '?' or '&' separator.
+ * @param values {object} An associative array of values as a JavaScript
+ * object literal. All keys and values must be strings.
+ * @return {string} A JSON string, encoded for URL transport, that contains
+ * the HTTP headers to be sent, or an empty string if there are no headers.
+ */
+function jpBuildUrlParamGroup(key, values) {
+    var keyValPair = "",
+        jsonifiedValues,
+        i;
+
+    if ( values ) {
+        // An effective, if a bit simplified and bastardized, JSON writer.
+        jsonifiedValues = "{";
+        for ( i in values ) {
+            if ( values.hasOwnProperty(i) ) {
+                jsonifiedValues += '"' + i + '":"' + values[i] + '"';
+            }
+        }
+        jsonifiedValues += "}"
+        // Encode for transport and delivery to proxy
+        keyValPair = key + encodeURIComponent(jsonifiedValues);
+    }
+
+    return keyValPair;
+}
+
+/**
  * Handle the response from the JSONPness backend and pass results to the
  * developers callback function.
  * This function must be globally available.
@@ -160,13 +193,16 @@ function jpGetNextRequestId() {
 jp.callback = function JSONPness$callback$(data) {
     var requestId = data.requestId;
 
-    console.log(data.response);
-    
+    // uncomment debug statement after we institute build procedures
+    //log(data.response);
+
     // Trigger callback
-    //jpRequestsInProcess[requestId](data.response);
+    jpRequestsInProcess[requestId](data.response);
 
     // Prefer setting to undefined vs. using delete
     jpRequestsInProcess[requestId] = undefined;
+
+    // @todo Cleanup dynamically inserted script tags after query completes.
 };
 
 //---------------------------------------------------- Public Methods
@@ -197,6 +233,26 @@ jp.getBackendUrl = function JSONPness$getBackendUrl$() {
 };
 
 /**
+ * Creates an HTTP Basic Authorization string.
+ * This is highly insecure as it only used Base64 encoding.
+ * To be used for testing only.
+ * @param user {string} The user name.
+ * @param pass {string} The user password.
+ * @return {string} A string that can be passed as an HTTP Authorization header
+ * value to allow HTTP Basic Authentication.
+ */
+jp.createHTTPBasicAuth = function JSONPness$createHTTPBasicAuth$(user, pass) {
+    // Concatenate strings together, note the colon
+    var rawUserPass = user + ":" + pass
+    // Encode
+    var base64UserPass = Base64.encode(rawUserPass);
+    // Create the header value, note the space
+    var headerValue = "Basic " + base64UserPass;
+
+    return headerValue;
+};
+
+/**
  * Makes a JSONPness request.
  * @name JSONPness.send
  * @function
@@ -207,6 +263,12 @@ jp.getBackendUrl = function JSONPness$getBackendUrl$() {
  * this function will be called.
  * @param [args.type="GET"] {string} Valid HTTP request type. Default to "GET"
  * if not included.
+ * @param [args.params] {object} JavaScript object literal containing all
+ * key and value pairings to be attached to, and forwarded on, as url
+ * parameters.
+ * @param [args.headers] {object} JavaScript object literal containing all
+ * key and value pairings for request headers that should be set for our
+ * proxied request.
  */
 jp.send = function JSONPness$send$(args) {
 
@@ -221,16 +283,170 @@ jp.send = function JSONPness$send$(args) {
     // Our local callback, distinct from the user's callback
         callback = "&callback=" + encodeURIComponent("JSONPness.callback"),
     // Type of request we will make
-        requestType = "&requestType=" + (args.type ? args.type : "GET");
+        requestType = "&requestType=" + (args.type ? args.type : "GET"),
+    // We might have to set HTTP headers for the proxied request
+        headers = jpBuildUrlParamGroup("&headers=", args.headers),
+    // We might have to set URL paramters for the proxied request
+        urlParams = jpBuildUrlParamGroup("&params=", args.params);
 
     // Store user's callback
     jpRequestsInProcess[uniqueRequestId] = args.callback;
     
     // Make the request
-    s.src = jpBackendUrl + url + requestId + callback + requestType;
+    s.src = jpBackendUrl + url + requestId + callback + requestType + headers + urlParams;
     d.getElementsByTagName("head")[0].appendChild(s);
-
-    // @todo Cleanup dynamically inserted script tags after query completes.
+    // @TODO id the script so the inserted script can be removed after the request
 };
+
+
+/**
+ *
+ *  Base64 encode / decode
+ *  http://www.webtoolkit.info/
+ *
+ **/
+ 
+var Base64 = {
+ 
+	// private property
+	_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+ 
+	// public method for encoding
+	encode : function (input) {
+		var output = "";
+		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+		var i = 0;
+ 
+		input = Base64._utf8_encode(input);
+ 
+		while (i < input.length) {
+ 
+			chr1 = input.charCodeAt(i++);
+			chr2 = input.charCodeAt(i++);
+			chr3 = input.charCodeAt(i++);
+ 
+			enc1 = chr1 >> 2;
+			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+			enc4 = chr3 & 63;
+ 
+			if (isNaN(chr2)) {
+				enc3 = enc4 = 64;
+			} else if (isNaN(chr3)) {
+				enc4 = 64;
+			}
+ 
+			output = output +
+			this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
+			this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
+ 
+		}
+ 
+		return output;
+	},
+ 
+	// public method for decoding
+	decode : function (input) {
+		var output = "";
+		var chr1, chr2, chr3;
+		var enc1, enc2, enc3, enc4;
+		var i = 0;
+ 
+		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+ 
+		while (i < input.length) {
+ 
+			enc1 = this._keyStr.indexOf(input.charAt(i++));
+			enc2 = this._keyStr.indexOf(input.charAt(i++));
+			enc3 = this._keyStr.indexOf(input.charAt(i++));
+			enc4 = this._keyStr.indexOf(input.charAt(i++));
+ 
+			chr1 = (enc1 << 2) | (enc2 >> 4);
+			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+			chr3 = ((enc3 & 3) << 6) | enc4;
+ 
+			output = output + String.fromCharCode(chr1);
+ 
+			if (enc3 != 64) {
+				output = output + String.fromCharCode(chr2);
+			}
+			if (enc4 != 64) {
+				output = output + String.fromCharCode(chr3);
+			}
+ 
+		}
+ 
+		output = Base64._utf8_decode(output);
+ 
+		return output;
+ 
+	},
+ 
+	// private method for UTF-8 encoding
+	_utf8_encode : function (string) {
+		string = string.replace(/\r\n/g,"\n");
+		var utftext = "";
+ 
+		for (var n = 0; n < string.length; n++) {
+ 
+			var c = string.charCodeAt(n);
+ 
+			if (c < 128) {
+				utftext += String.fromCharCode(c);
+			}
+			else if((c > 127) && (c < 2048)) {
+				utftext += String.fromCharCode((c >> 6) | 192);
+				utftext += String.fromCharCode((c & 63) | 128);
+			}
+			else {
+				utftext += String.fromCharCode((c >> 12) | 224);
+				utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+				utftext += String.fromCharCode((c & 63) | 128);
+			}
+ 
+		}
+ 
+		return utftext;
+	},
+ 
+	// private method for UTF-8 decoding
+	_utf8_decode : function (utftext) {
+		var string = "";
+		var i = 0;
+		var c, c2, c3;
+                c = c2 = c3 = 0;
+ 
+		while ( i < utftext.length ) {
+ 
+			c = utftext.charCodeAt(i);
+ 
+			if (c < 128) {
+				string += String.fromCharCode(c);
+				i++;
+			}
+			else if((c > 191) && (c < 224)) {
+				c2 = utftext.charCodeAt(i+1);
+				string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+				i += 2;
+			}
+			else {
+				c2 = utftext.charCodeAt(i+1);
+				c3 = utftext.charCodeAt(i+2);
+				string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+				i += 3;
+			}
+ 
+		}
+ 
+		return string;
+	}
+ 
+}
+/**
+ *  End
+ *  Base64 encode / decode
+ *  http://www.webtoolkit.info/
+ *
+ **/
 
 })();

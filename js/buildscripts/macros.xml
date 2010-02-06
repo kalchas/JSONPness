@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project name is used for relative file referencing. -->
+<project name="JavaScriptBuildMacros">
+    <description>
+    Set-up macros for use by the build script.
+    </description>
+
+    <!-- Using a dynamically set basedir allows us to use relative paths. -->
+    <dirname property="JavaScriptBuildMacros.basedir" file="${ant.file.JavaScriptBuildMacros}"/>
+
+    <!-- preprocess task macro -->
+    <import file="${JavaScriptBuildMacros.basedir}/preprocessor/macro.xml"/>
+
+    <!-- document auto-generator task macro -->
+    <import file="${JavaScriptBuildMacros.basedir}/jsdocumentor/macro.xml"/>
+
+    <!-- minifier task task macro -->
+    <import file="${JavaScriptBuildMacros.basedir}/compressor/macro.xml"/>
+
+    <!-- code coverage generator task macro -->
+    <import file="${JavaScriptBuildMacros.basedir}/coveragebuilder/macro.xml"/>
+
+    <!-- coverage report generator task macro -->
+    <import file="${JavaScriptBuildMacros.basedir}/coveragereporter/macro.xml"/>
+
+    <!-- Macros using only Ant tasks. -->
+    <macrodef name="removeStackTraceFunctionNames"
+        description="Removes stack trace function names of the format namespace$class$functionName$ used for generating stack traces in IE.">
+        <attribute name="infile"
+            description="Required: Input file to process."/>
+
+        <sequential>
+            <echo level="info">Removing stack trace function names from file: @{infile}</echo>
+            <replaceregexp flags="g" file="@{infile}">
+                <!-- NOTE:
+                Clean up the function prototype names in the JavaScript files that
+                we use to assist in generating stack traces in IE and user defined Log functions.
+                This regular expression translates to:
+                - Starting from an equal sign
+                - match 0 to more whitespace characters
+                - match the world 'function'
+                - match 0 or more whitespace characters
+                - match any valid JavaScript function name (combo of $, _, numbers and characters)
+                - match 0 or more whitespace characters
+                - match the opening parenthesis for a function prototype
+                and
+                - replace with an anonymous function prototype
+                because for some applications, or non-obfuscated release code, we
+                won't want the function prototypes. -->
+                <regexp pattern="=\s*function\s*[\$\w_]*\s*\("/>
+                <substitution expression="= function \("/>
+            </replaceregexp>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="removeLogFunctionCalls"
+        description="Removes log function calls of the format log*(.*);.">
+        <attribute name="infile"
+            description="Required: Input file to process."/>
+
+        <sequential>
+            <echo level="info">
+Removing log function calls from file: @{infile}
+We expect log function calls to exist
+on their own
+on a single line
+and follow a specific naming syntax (see the macrodef).
+            </echo>
+            <replaceregexp flags="gm" file="@{infile}" byline="true">
+                <!--
+                    Will remove all logging statements:
+                    * Include any space or tab characters from beginning of line
+                    * function/object must start with the word log.
+                      Warning!!!!!!
+                      don't start functions with the word string "log".
+                    * Allow a dot, or not (e.g. plain log() or log.error()).
+                    * Include sub methods via valid JavaScript function
+                      characters (e.g. log.error);
+                    * Grab the parentheses and and anything inside.
+                    * You must put a semi-colon at the end of the statement.
+                    * Remove any trailing spaces or tabs, but not the newline.
+                -->
+                <regexp pattern="^[ \t]*log[\.\$\w_]*\(.*\);[ \t]*$"/>
+                <substitution expression=""/>
+            </replaceregexp>
+        </sequential>
+    </macrodef>
+
+</project>

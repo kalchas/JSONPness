@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jscompressor">
+    <description>
+    Define a general ant macro for JavaScript file minification.
+    </description>
+
+    <macrodef name="jscompress">
+        <attribute name="infile"
+            description="Required input file name."/>
+        <attribute name="outfile"
+            description="Required output file."/>
+
+        <sequential>
+            <echo level="info">Running yuicompressor on @{infile}</echo>
+            <echo level="info">Resulting file will be @{outfile}</echo>
+            <java jar="${libDir}/yuicompressor/yuicompressor.jar"
+                  fork="true">
+                <arg line="--type js" />
+                <arg line="-o @{outfile}" />
+                <arg file="@{infile}" />
+            </java>
+        </sequential>
+    </macrodef>
+
+</project>
